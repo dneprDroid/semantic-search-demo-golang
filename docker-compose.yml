@@ -1,0 +1,26 @@
+version: '3'
+services:
+  db:
+    image: postgres:10.1-alpine
+    # restart: always
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PORT=${DB_PORT}
+    
+  app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    # restart: always
+    environment:
+      - APP_PORT=${APP_PORT}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    links:
+      - db
