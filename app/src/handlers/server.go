@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"common/rpc"
 	"common/log"
 
 	"appserver/database"
@@ -21,6 +22,7 @@ func NewServer() *Server {
 	return &Server{
 		env: env.Env{
 			Db: database.NewPool(),
+			Rpc: rpc.NewPool(),
 		},
 	} 
 }
