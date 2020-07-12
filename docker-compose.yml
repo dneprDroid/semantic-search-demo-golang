@@ -13,6 +13,17 @@ services:
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  text2embeddings:
+    build:
+      context: .
+      dockerfile: ./text2embeddings/Dockerfile
+    environment:
+      - NATS_URI=${NATS_URI}
+    depends_on:
+      - nats
+    links:
+      - nats
+
   nats:
     image: 'nats:1.0.4'
     command: >
@@ -38,5 +49,6 @@ services:
       - NATS_URI=${NATS_URI}
     depends_on:
       - db
+      - text2embeddings
     links:
       - db
