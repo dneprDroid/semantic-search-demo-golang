@@ -23,6 +23,7 @@ func waitServ() {
 
 func main() {
 	rpcEngine := rpc.NewRpc()
+	tk := NewTokenizer()
 
 	if err := rpcEngine.Connect(); err != nil {
 		panic(err)
@@ -30,8 +31,17 @@ func main() {
 	defer rpcEngine.Release()
 
 	err := rpcEngine.Listen("embedding", func (request rpc.TextRequest) (*rpc.EmbeddingResponse, error) {
-
-		return nil, nil 
+		log.Printf("got new request: `%v`", request)
+		vec, err := tk.Encode(request.Content)
+		if err != nil {
+			log.Printf("tokenizer err: `%v`", err)
+			return nil, err
+		}
+		log.Printf("got new response: `%v` => `%v`", request.Content, vec)
+		resp := &rpc.EmbeddingResponse{
+			Vec: vec,
+		}
+		return resp, nil 
 	})
 	if err != nil {
 		panic(err)
