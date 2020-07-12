@@ -14,6 +14,10 @@ func RespWriteJson(w http.ResponseWriter, object interface{}) error {
 	return nil 
 }
 
+func RespError(w http.ResponseWriter, err error) {
+	RespErrorStr(w, err.Error())
+}
+
 func RespErrorStr(w http.ResponseWriter, errStr string) {
 	w.WriteHeader(http.StatusInternalServerError)
 	errMsg := map[string]string {
