@@ -14,6 +14,48 @@ type _Embeddings struct {}
 
 var Embeddings _Embeddings 
 
+func (_Embeddings) FindPostIds(db *sql.DB, embeddings []int) ([]int, error) {
+	const (
+		wordSim = 250
+		contextDistance = 4
+	)
+	postIds := make(map[int]int, 0)
+	
+	queryArgs := make([]interface{}, 0)
+	queryArgs = append(queryArgs, wordSim)
+	if len(embeddings) > 1 {
+		queryArgs = append(queryArgs, contextDistance)
+	}
+	for _, emb := range embeddings {
+		queryArgs = append(queryArgs, emb)
+	}
+	rows, err := db.Query(
+		buildBertQuery(
+			len(embeddings), 
+			len(queryArgs) - len(embeddings),
+		),
+		queryArgs...,
+	)
+	if err != nil {
+		return nil, err 
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			postId int
+		)
+		err := rows.Scan(&postId)
+		if err != nil {
+			return nil, err
+		}
+		postIds[postId] += 1
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return maps.Keys(postIds), nil 
+}
+
 func (_Embeddings) InsertPostData(db *sql.DB, postId int, embeddings []int) error {
 	sqlStr := "INSERT INTO embeddings(postId, word_offset, word) VALUES "
 	vals := make([]interface{}, len(embeddings) * 3)
