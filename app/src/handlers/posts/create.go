@@ -35,6 +35,21 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 		util.RespError(w, err)
 		return
 	}
+	go func () {
+		if err := processEmbeddings(env, postId, postText); err != nil {
+			log.Printf("Embedding processing error: `%v`", err)
+		}
+	}()
 	resp := entity.AddPostResponse{ Id: postId }
 	util.RespWriteJson(w, resp)
+}
+
+func processEmbeddings(env env.Env, postId int, postText string) error {
+	embeddings, err := requestEmbeddings(env, postText)
+	if err != nil {
+		return err 
+	}
+	return env.Db.InContextSync(func(db *sql.DB) error {
+		return database.Embeddings.InsertPostData(db, postId, embeddings)
+	})
 }
