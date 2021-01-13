@@ -64,19 +64,21 @@ func (_Embeddings) InsertPostData(db *sql.DB, postId int, embeddings []int) erro
 	vals := make([]interface{}, len(embeddings) * 3)
 
 	for offset, wordId := range embeddings {
-		argNum := offset * 3 + 1
-		sqlStr += fmt.Sprintf("($%v, $%v, $%v),", argNum, argNum+1, argNum+2)
-		vals[offset * 3] = postId
-		vals[offset * 3 + 1] = offset 
-		vals[offset * 3 + 2] = wordId 
+		argNum := offset * 3
+		sqlStr += fmt.Sprintf("($%v, $%v, $%v),", argNum + 1, argNum + 2, argNum + 3)
+		vals[argNum] = postId
+		vals[argNum + 1] = offset 
+		vals[argNum + 2] = wordId 
 	}
-	sqlStr = sqlStr[0:len(sqlStr)-1]
+	sqlStr = sqlStr[:len(sqlStr)-1]
 
 	stmt, err := db.Prepare(sqlStr)
 	if err != nil {
 		log.Printf("sqlStr error: `%v`: %v", sqlStr, err)
 		return err
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(vals...)
 	if err != nil {
 		return err
