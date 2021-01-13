@@ -25,9 +25,9 @@ services:
       - nats
 
   nats:
-    image: 'nats:1.0.4'
+    image: 'nats:1.4.1'
     command: >
-       --cluster_name NATS --cluster nats://0.0.0.0:6222 --http_port 8222 
+       --cluster nats://0.0.0.0:6222 --http_port 8222 
        $NATS_AUTH_PARAMS
     environment:
       - NATS_AUTH_PARAMS=${NATS_AUTH_PARAMS}
@@ -39,9 +39,9 @@ services:
       dockerfile: ./app/Dockerfile
     # restart: always
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
-      - SERVER_PORT=8080
+      - SERVER_PORT=${SERVER_PORT}
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
