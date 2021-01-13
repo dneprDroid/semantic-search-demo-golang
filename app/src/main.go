@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	servhandlers "appserver/handlers"
-	"appserver/handlers/posts"
+	"appserver/handler"
+	"appserver/middleware/posts"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -19,7 +19,7 @@ func main() {
 		Addr: ":" + os.Getenv("SERVER_PORT"),
 	}
 
-	sh := servhandlers.NewServer()
+	sh := handler.NewServer()
 
 	r.HandleFunc("/post", sh.Handler(posts.AddPost))
 	r.HandleFunc("/post/search", sh.Handler(posts.FindPost))

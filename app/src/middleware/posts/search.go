@@ -7,34 +7,34 @@ import (
 
 	"common/rpc"
 
-	"appserver/util"
+	"appserver/response"
 	"appserver/env"
-	"appserver/database"
+	"appserver/database/datastore"
 	"appserver/entity"
 )
 
 func FindPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 	query, ok := req.URL.Query()["q"]
 	if !ok || len(query) == 0 || len(query[0]) == 0 {
-		util.RespErrorStr(w, fmt.Sprintf("Bad query: '%s'", query))
+		response.ErrorStr(w, fmt.Sprintf("Bad query: '%s'", query))
 		return 
 	}
 	embeddings, err := requestEmbeddings(env, query[0])
 	if err != nil {
-		util.RespError(w, err)
+		response.Error(w, err)
 		return 
 	}
-	var dbPosts []database.Post
+	var dbPosts []datastore.Post
 	err = env.Db.InContextSync(func(dbConn *sql.DB) error {
-		postIds, err := database.Embeddings.FindPostIds(dbConn, embeddings)
+		postIds, err := datastore.Embeddings.FindPostIds(dbConn, embeddings)
 		if err != nil {
 			return err
 		}
-		dbPosts, err = database.Posts.Find(dbConn, postIds...)
+		dbPosts, err = datastore.Posts.Find(dbConn, postIds...)
 		return err  
 	})
 	if err != nil {
-		util.RespError(w, err)
+		response.Error(w, err)
 		return
 	}
 	jsonPosts := make([]entity.Post, len(dbPosts))
@@ -44,7 +44,7 @@ func FindPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 			Content: dbPost.Content, 
 		}
 	}
-	util.RespWriteJson(w, jsonPosts)
+	response.WriteJson(w, jsonPosts)
 }
 
 func requestEmbeddings(env env.Env, text string) ([]int, error) {

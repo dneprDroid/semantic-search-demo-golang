@@ -7,9 +7,9 @@ import (
 
 	"common/log"
 
-	"appserver/util"
+	"appserver/response"
 	"appserver/env"
-	"appserver/database"
+	"appserver/database/datastore"
 	"appserver/entity"
 )
 
@@ -17,7 +17,7 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 	bodyBytes, err := ioutil.ReadAll(req.Body)
 	defer req.Body.Close()
 	if err != nil {
-		util.RespError(w, err)
+		response.Error(w, err)
 		return
 	}
 	postText := string(bodyBytes)
@@ -25,14 +25,14 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 
 	var postId int
 	err = env.Db.InContextSync(func(db *sql.DB) error {
-		postId, err = database.Posts.InsertNew(db, postText)
+		postId, err = datastore.Posts.InsertNew(db, postText)
 		if err != nil {
 			return err 
 		}
 		return nil 
 	})
 	if err != nil {
-		util.RespError(w, err)
+		response.Error(w, err)
 		return
 	}
 	go func () {
@@ -41,7 +41,7 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 		}
 	}()
 	resp := entity.AddPostResponse{ Id: postId }
-	util.RespWriteJson(w, resp)
+	response.WriteJson(w, resp)
 }
 
 func processEmbeddings(env env.Env, postId int, postText string) error {
@@ -50,6 +50,6 @@ func processEmbeddings(env env.Env, postId int, postText string) error {
 		return err 
 	}
 	return env.Db.InContextSync(func(db *sql.DB) error {
-		return database.Embeddings.InsertPostData(db, postId, embeddings)
+		return datastore.Embeddings.InsertPostData(db, postId, embeddings)
 	})
 }

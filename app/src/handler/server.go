@@ -1,4 +1,4 @@
-package handlers 
+package handler 
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"appserver/database"
 	"appserver/env"
-	"appserver/util"
+	"appserver/response"
 )
 
 type ServerHandler func(env.Env, http.ResponseWriter, *http.Request)
@@ -32,7 +32,7 @@ func (self* Server) Handler(h ServerHandler) http.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("Recovered. Error: `%v`", err)
-				util.RespErrorStr(w, fmt.Sprintf("%v", err))
+				response.ErrorStr(w, fmt.Sprintf("%v", err))
 			}
 		}()
 		h(self.env, w, req)
