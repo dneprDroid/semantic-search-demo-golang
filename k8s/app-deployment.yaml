@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        service: app
+    spec:
+      containers:
+        - env:
+            - name: SERVER_PORT
+              value: "80"
+            - name: DB_HOST
+              value: db
+            - name: DB_NAME
+              value: root
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+            - name: NATS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: nats-secret
+                  key: uri
+          image: gcr.io/PROJECT_ID/app:v0.0.1
+          name: app
+          ports:
+            - containerPort: 80
+          resources: {}
+      restartPolicy: Always
+status: {}

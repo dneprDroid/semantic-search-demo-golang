@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  init.sql: |
+
+    CREATE TABLE posts (
+        id SERIAL PRIMARY KEY,
+        content text
+    );
+
+    CREATE TABLE embeddings (
+        postId int,
+        word_offset int,
+        word int
+    );
+
+metadata:
+  name: db-config-init
+  namespace: default

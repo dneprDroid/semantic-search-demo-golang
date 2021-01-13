@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: text2embeddings
+  name: text2embeddings
+spec:
+  ports:
+    - name: "1111"
+      port: 1111
+      targetPort: 1111
+  type: ClusterIP
+  selector:
+    service: text2embeddings

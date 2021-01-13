@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: nats
+  name: nats
+spec:
+  ports:
+    - name: "4222"
+      port: 4222
+      targetPort: 4222
+  selector:
+    service: nats
+  type: ClusterIP

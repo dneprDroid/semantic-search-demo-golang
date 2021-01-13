@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: nats
+  name: nats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: nats
+  template:
+    metadata:
+      labels:
+        service: nats
+    spec:
+      containers:
+        - env:
+            - name: NATS_USER 
+              valueFrom:
+                secretKeyRef:
+                  name: nats-secret
+                  key: user
+            - name: NATS_PASSWORD 
+              valueFrom:
+                secretKeyRef:
+                  name: nats-secret
+                  key: password
+          args:
+          - "--cluster" 
+          - "nats://0.0.0.0:6222"
+          - "--http_port"
+          - "8222"
+          - "--user"
+          - "$(NATS_USER)"
+          - "--pass"
+          - "$(NATS_PASSWORD)"
+          image: nats:1.4.1
+          name: nats
+          ports:
+            - containerPort: 4222
+          resources: {}
+      restartPolicy: Always
+status: {}

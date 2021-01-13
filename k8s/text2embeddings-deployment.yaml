@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: text2embeddings
+  name: text2embeddings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: text2embeddings
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        service: text2embeddings
+    spec:
+      containers:
+        - env:
+            - name: NATS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: nats-secret
+                  key: uri
+          image: gcr.io/PROJECT_ID/text2embeddings:v0.0.1
+          name: text2embeddings
+          ports:
+            - containerPort: 1111
+          resources: {}
+      restartPolicy: Always

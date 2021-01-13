@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: app
+  name: app
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+  # loadBalancerIP: "some.static.ip.address"
+  selector:
+    service: app
