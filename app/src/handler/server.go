@@ -9,7 +9,7 @@ import (
 
 	"appserver/database"
 	"appserver/env"
-	"appserver/response"
+	"appserver/responseutil"
 )
 
 type ServerHandler func(env.Env, http.ResponseWriter, *http.Request)
@@ -32,7 +32,7 @@ func (self* Server) Handler(h ServerHandler) http.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("Recovered. Error: `%v`", err)
-				response.ErrorStr(w, fmt.Sprintf("%v", err))
+				responseutil.ErrorStr(w, fmt.Sprintf("%v", err))
 			}
 		}()
 		h(self.env, w, req)

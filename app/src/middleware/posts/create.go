@@ -7,7 +7,7 @@ import (
 
 	"common/log"
 
-	"appserver/response"
+	"appserver/responseutil"
 	"appserver/env"
 	"appserver/database/datastore"
 	"appserver/entity"
@@ -17,11 +17,10 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 	bodyBytes, err := ioutil.ReadAll(req.Body)
 	defer req.Body.Close()
 	if err != nil {
-		response.Error(w, err)
+		responseutil.Error(w, err)
 		return
 	}
 	postText := string(bodyBytes)
-	log.Printf("body: `%v`", postText)
 
 	var postId int
 	err = env.Db.InContextSync(func(db *sql.DB) error {
@@ -32,7 +31,7 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 		return nil 
 	})
 	if err != nil {
-		response.Error(w, err)
+		responseutil.Error(w, err)
 		return
 	}
 	go func () {
@@ -41,7 +40,7 @@ func AddPost(env env.Env, w http.ResponseWriter, req *http.Request) {
 		}
 	}()
 	resp := entity.AddPostResponse{ Id: postId }
-	response.WriteJson(w, resp)
+	responseutil.WriteJson(w, resp)
 }
 
 func processEmbeddings(env env.Env, postId int, postText string) error {
