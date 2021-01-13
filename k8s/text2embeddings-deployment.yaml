@@ -9,7 +9,6 @@ spec:
   selector:
     matchLabels:
       service: text2embeddings
-  strategy: {}
   template:
     metadata:
       labels:
