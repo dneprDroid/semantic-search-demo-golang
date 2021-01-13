@@ -6,7 +6,6 @@ import (
 
 	"common/log"
 
-	"golang.org/x/exp/maps"
 	_ "github.com/lib/pq"
 )
 
@@ -53,7 +52,11 @@ func (_Embeddings) FindPostIds(db *sql.DB, embeddings []int) ([]int, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return maps.Keys(postIds), nil 
+	result := make([]int, 0)
+	for id, _ := range postIds {
+		result = append(result, id)
+	}
+	return result, nil 
 }
 
 func (_Embeddings) InsertPostData(db *sql.DB, postId int, embeddings []int) error {
